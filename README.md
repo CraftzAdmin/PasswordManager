@@ -382,6 +382,82 @@ Handles the unlocking process by prompting the user to enter their 4-digit PIN. 
 -   **Key Steps**:
     -   The user is prompted to enter their PIN by cycling through digits using Button B and confirming with Button A. After 3 incorrect attempts, the device locks for 1 minute.
 
+
+
+### `sha256GeneratePassword`
+
+This function takes three parameters:
+- **`bank`**: A character representing the selected bank (from 'A' to 'Z').
+- **`pin`**: A `String` containing the initial 4-digit PIN.
+- **`passwordPin`**: Another `String` containing the user-input password PIN.
+
+These three values, along with the **Device ID** of the M5StickC Plus, are used to generate a unique, consistent password based on an SHA256 hash.
+
+### Step-by-Step Explanation:
+
+1. **Initialize the SHA256**:
+   ```cpp
+   SHA256 sha256;
+   sha256.reset();
+   ```
+   The function initializes the **SHA256** object, which will be used to generate the hash. The `reset()` method ensures there is no residual data in the buffer.
+
+2. **Feed the Inputs into the Hash**:
+   The function then feeds the values of **bank**, **pin**, **deviceID**, and **passwordPin** into the SHA256 object. Each value is passed as a `String` and converted to a C-string (`char*`) for the SHA256 function to process.
+   
+   ```cpp
+   sha256.update(String(bank).c_str(), 1); // Adds the bank value
+   sha256.update(pin.c_str(), pin.length()); // Adds the initial PIN
+   sha256.update(deviceID.c_str(), deviceID.length()); // Adds the device ID
+   sha256.update(passwordPin.c_str(), passwordPin.length()); // Adds the password PIN
+   ```
+
+3. **Generating the Hash**:
+   Once all the inputs have been fed into the SHA256 object, the `finalize()` method is called, which generates a **256-bit hash (32 bytes)** based on the provided data.
+   
+   ```cpp
+   byte hash[32];
+   sha256.finalize(hash, sizeof(hash));
+   ```
+
+4. **Character Substitution Based on the Hash**:
+   Now comes the important part: transforming the hash into a readable, secure password. To do this, we use the `hash[32]` array, where each byte has a value between 0 and 255.
+
+   - The function uses a character set (charset) to map the hash values to readable characters:
+     ```cpp
+     String charset = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*";
+     ```
+
+   - The charset has 72 characters (26 uppercase letters, 26 lowercase letters, 10 numbers, and 10 special characters).
+
+   - Each byte from the hash is used to select a character from this charset. The **modulus operation** (`%`) ensures that the byte value is mapped within the valid index range of the charset:
+     ```cpp
+     for (int i = 0; i < tempPasswordLength; i++) {
+       int index = hash[i % 32] % charset.length(); // Maps the hash value to a charset index
+       result += charset[index];
+     }
+     ```
+     - The expression `hash[i % 32]` makes sure that the index cycles through the 32 bytes of the hash repeatedly (if the password length exceeds 32, it reuses the hash in a loop).
+     - The `% charset.length()` ensures that the index is always between 0 and 71, which are the valid indexes of the charset.
+
+5. **Return the Generated Password**:
+   After the substitution, the function returns the generated password:
+   ```cpp
+   return result;
+   ```
+
+### Example:
+
+- Suppose the generated SHA256 hash starts with the following bytes: `[43, 178, 67, 90, ...]`
+- For each byte, the function maps the value to a character from the charset:
+  - 43 % 72 → Maps to index 43 in the charset: 'r'
+  - 178 % 72 → Maps to index 34 in the charset: 'i'
+  - 67 % 72 → Maps to index 67 in the charset: '@'
+  - 90 % 72 → Maps to index 18 in the charset: 'S'
+  
+  Continuing this process, the function constructs the password by substituting each hash value with the corresponding character from the charset.
+
+
 ### `checkPin()`
 
 ```cpp
