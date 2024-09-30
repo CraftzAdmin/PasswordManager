@@ -166,6 +166,13 @@ This means that with the combination of **26 banks and 10,000 possible 4-digit P
 -   Even if someone has access to the source code, they would still need the **specific combination of Bank, PIN, Device ID, and Initial PIN** to generate the correct password for the account.
 -   The use of **SHA256 hashing** ensures that the output is **cryptographically secure** and not easily reversible.
 
+## Libraries
+| **Library**         | **License**     | **Author**              | **Version**   | **Link** |
+|---------------------|-----------------|-------------------------|---------------|----------|
+| `M5StickCPlus.h`     | MIT License     | M5Stack                  | 0.2.7         | [M5StickCPlus](https://github.com/m5stack/M5StickC) |
+| `BleKeyboard.h`      | MIT License     | T-vK                    | 0.3.0         | [BleKeyboard](https://github.com/T-vK/ESP32-BLE-Keyboard) |
+| `SHA256.h`           | Public Domain   | Mike B. (Cryptosuite)    | 1.0.0         | [SHA256](https://github.com/BlakeFoster/Arduino-SHA256) |
+| `Preferences.h`      | MIT License     | Espressif Systems        | Part of ESP32 Core | [Preferences](https://github.com/espressif/arduino-esp32/tree/master/libraries/Preferences) |
 
 
 ## Key Functionalities and Code Breakdown
