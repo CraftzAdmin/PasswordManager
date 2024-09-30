@@ -705,6 +705,10 @@ In future updates of the **M5StickC Plus Password Generator**, the following fea
 
 -   **Fix the BLE Reconnection Bug**: An effort will be made to correct the current BLE reconnection issue on **Windows **, where the BLE keyboard fails to send input after disconnecting and reconnecting. The goal is to ensure seamless BLE keyboard functionality without requiring manual removal and re-pairing on the host.
 
+-   Encrypting Values Stored in Preferences - Using mbedTLS (Built-in to ESP32),
+-   Strengthen Initialization
+-   Erase on Multiple Failed Attempts
+
 ## License
 
 This project is licensed under the **Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)** license. Under this license:
