@@ -149,11 +149,11 @@ The password generation in this project leverages **substitution** to ensure the
 
 Each byte from the generated hash is used to map to an index in this charset, ensuring a diverse and secure selection of characters in the password.
 
-### How many Passwords can it produce? 
+### How many Passwords can it generate? 
 
 -   **Banks**: The user can select from **26 banks** (`A-Z`), giving us 26 possible choices.
 -   **4-digit PIN**: The user can choose a **4-digit PIN**, where each digit ranges from `0-9`. This gives us \(10^4 = 10,000\) possible combinations.
-- 
+  
 -   **Password Length**: The user can specify the length of the password, typically between **8 to 40 characters**. For simplicity, we can assume the length to be an additional factor in determining the diversity of passwords, but the core uniqueness comes from the combination of Bank and PIN. As a fact, the same BANK and PIN, will have the same root, for example - a password of bank A1001 with 8 char will be generated as 12345678.... with 12 char, it will contain the same 1-8 root + the new char. **So take this into account!**
 
 This means that with the combination of **26 banks and 10,000 possible 4-digit PINs,** the device can generate **260,000 unique patterns**. Each of these patterns can be used to generate a password of any specified length (e.g., 8, 12, 16 characters, etc.), providing an incredibly large space of possible passwords.
