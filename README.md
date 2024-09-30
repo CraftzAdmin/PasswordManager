@@ -99,6 +99,52 @@ This project is built using **open-source technologies** and is based on **Ardui
 2.  **No Encrypted Memory on Device**: The M5StickC Plus does not have **hardware-encrypted storage**. This means that any sensitive information stored or processed by the device, such as the device ID or any runtime variables, is vulnerable if the device is physically compromised. There is no secure enclave or encrypted memory available to store information securely on the device itself.
 3.  **Hardcoded Values**: While the **device ID** and **initial PIN** are hardcoded into the Arduino code, they can be modified by the user before flashing the device. However, it’s important to understand that these values are visible in the source code, which is not the most secure method if the code is publicly shared.
 
+### 1. **SHA256 Hashing Risks**
+
+-   **Deterministic Nature**: SHA256 is a cryptographic hash function that is deterministic. This means the same inputs will always generate the same output. While this is essential for your application (so that the same Bank + PIN always results in the same password), it introduces the following risks:
+    
+    -   **Guessable Inputs**: If an attacker knows or can guess your Bank and PIN combination, they can easily regenerate the same password.
+    -   **No Salt**: Typically, when using hashing algorithms, a random value (salt) is added to the input to ensure different hashes for the same input. In your case, you're relying on the unique **DeviceID** and **PIN** as a sort of "salt," but if these values are known or compromised, passwords can become predictable.
+    
+### 2. **Character Substitution from Hash**
+
+-   **Character Mapping and Distribution**: The method of converting the SHA256 hash bytes into characters using the modulus operator (`%`) is generally fine for ensuring characters fall within your charset (letters, numbers, symbols). However, since you’re selecting characters from a predefined charset, you  introduce some patterns or biases:
+    
+    -   **Uniformity**: Depending on how the hash bytes are distributed, some characters may appear more frequently than others in the final password, reducing randomness slightly.
+    -   **Limited Character Set**: You are limiting the password to a set of **72 characters**. While this is good for compatibility, it reduces entropy compared to using a wider character set.
+
+### 3. **Conversion and Modulus Operation**
+
+-   **Modulo Operation**: You're using the modulus operator (`%`) to map hash bytes to indexes within the charset. This technique works fine, but it can introduce slight biases in cases where the hash bytes aren't evenly distributed across all potential values.
+    
+    -   For instance, since you're dividing by `72` (the length of the charset), some characters may appear more frequently due to how the modulo operation distributes values.
+    
+### 4. **Password Duplication**
+
+-   **Risk of Duplicate Passwords**: Since your password generator is deterministic, using the same Bank + PIN combination on the same device will always generate the same password. This introduces the following risks:
+    
+    -   **Reuse Across Services**: If the same Bank + PIN combination is reused for multiple services, the password will be identical across those services, which is a known security risk.
+    -   **Collision Between Devices**: If the same **PIN** and **Bank** combination is used on two different devices with the same **DeviceID** (e.g., through duplication or manufacturing error), it could result in the same password being generated.
+    
+### 6. **Non-Secure Storage (Preferences)**
+
+-   **Storing Initial PIN and DeviceID**: You are using the **Preferences** library to store the **Initial PIN** and potentially other sensitive data. While Preferences provide non-volatile storage, they are not encrypted by default on the ESP32 platform.
+    
+    -   If an attacker gains access to the device's storage, they may be able to extract the stored PIN, making it easier to regenerate the passwords.
+    
+### 7. **BLE Pairing Risks**
+
+-   **Bluetooth Security**: Since the device uses **BLE Keyboard** functionality, there are inherent security risks in BLE communications.
+    
+    -   **Re-pairing**: If BLE connections are not cleared correctly after each session, the device could automatically reconnect to a previously paired device, allowing an attacker to potentially intercept or misuse the password.
+
+### 8. **Potential for Physical Attack**
+
+-   **Device Access**: Since the security of this system relies on the uniqueness of the **DeviceID** and the secrecy of the **PIN**, an attacker who gains physical access to the device could potentially extract these values.
+    
+    -   **Device Duplication**: An attacker who duplicates the DeviceID or guesses the PIN could generate the same passwords.
+
+
 ### Security Advantages:
 
 Despite the aforementioned risks, the project provides a **more ecure way to generate and manage passwords** with some notable security features:
